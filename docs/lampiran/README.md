@@ -43,6 +43,9 @@ satu istilah, biasanya ada di sekitar posisi yang sama di sini.
 | **SUID/SGID binary** | Program yang saat dijalankan otomatis mendapat hak akses pemilik file (biasanya root), bukan hak akses user yang menjalankannya — berguna untuk kasus tertentu, tapi juga target umum eksploitasi kalau salah konfigurasi. |
 | **On-device AI / LLM lokal** | Model kecerdasan buatan (Large Language Model) yang berjalan langsung di perangkat Anda sendiri, bukan lewat panggilan API ke server pihak ketiga. |
 | **Symlink (symbolic link)** | File khusus yang isinya cuma "pointer" menunjuk ke file/direktori lain — kalau pointer ini rusak/salah, sistem yang membacanya bisa salah paham total soal apa yang seharusnya ada di situ. |
+| **Edge network / CDN edge** | Server perantara (seperti Cloudflare) yang berada "di depan" server asli Anda, menerima traffic publik duluan sebelum (kalau lolos) diteruskan ke server Anda. Punya aturan &amp; batasannya sendiri (ukuran request, rate-limit) yang berlaku SEBELUM request itu sampai ke server Anda. |
+| **Chunked upload** | Teknik memecah file besar jadi potongan-potongan kecil sebelum dikirim, tiap potongan digabung lagi di server jadi file utuh — cara umum menghindari limit ukuran request di reverse proxy/CDN. |
+| **Cache-busting / revalidation** | Teknik memaksa browser/CDN mengambil versi terbaru sebuah file, bukan versi lama yang ter-cache — lewat header `Cache-Control` yang tepat, ETag, atau nama file unik per-versi. |
 
 ---
 
@@ -65,6 +68,9 @@ satu istilah, biasanya ada di sekitar posisi yang sama di sini.
 | Container BISA diakses langsung dari LAN tanpa lewat nginx (seharusnya tidak bisa) | Port container ter-bind ke `0.0.0.0`, bukan `127.0.0.1` — celah keamanan | `docker port <container>`, cek `docker-compose.yml` |
 | Database baru tidak pernah muncul di backup otomatis | Lupa grant privilege ke user `backup` untuk DB baru itu ([Chapter 04](../04-database-arsitektur/)) | `mysql -u backup -p -e "SHOW DATABASES;"` — cek apakah DB baru muncul di hasil |
 | Ollama/service lain restart berulang-ulang saat boot | Dependency systemd cuma ke `network-online.target`, bukan ke service spesifik yang benar-benar dibutuhkan | `journalctl -u <service> -b \| grep -c "Main process exited"` |
+| Upload file besar (&gt;100MB) via Cloudflare Tunnel gagal/macet, padahal server &amp; app sehat | Limit ukuran body request Cloudflare (~100MB di paket Free/Pro) — **bukan bug server** | Tes langsung dari server: `curl -X POST <url-publik> -F "file=@besar.bin"` — kalau balas `413` dengan header `server: cloudflare`, itu ditolak di edge, tidak pernah sampai ke app Anda |
+| Fix sudah di-deploy (kode terbukti benar di server), tapi user/browser masih lihat perilaku lama | Cache — bisa di CDN (Cloudflare edge) DAN/ATAU di browser lokal user, dua lapis berbeda | Cek `cache-control`/`cf-cache-status` lewat `curl -I`; kalau CDN sudah benar tapi user masih lapor sama, minta user tes di jendela Incognito/Private (bypass cache browser lokal sepenuhnya) |
+| Log server (app + nginx + tunnel) **nihil total** padahal user sudah coba upload/akses berkali-kali | Request tidak pernah sampai ke origin — ditolak di edge/CDN sebelum diteruskan | Curigai limit CDN (ukuran, rate-limit, WAF) duluan sebelum audit kode aplikasi — buktikan dgn tes `curl` langsung dari server seperti baris di atas |
 
 ---
 
@@ -100,6 +106,20 @@ masuk), IP publik rumah Anda **tidak relevan sama sekali** untuk
 tunnel tetap bekerja &mdash; berbeda dengan pendekatan port-forward
 tradisional yang mengharuskan Anda melacak &amp; update IP publik
 setiap kali berubah (biasanya lewat layanan Dynamic DNS).
+
+**Cloudflare Tunnel yang dipuji di Chapter 06 itu ada batasannya, kan?**
+Ya, dan ini penting jujur disebutkan: Cloudflare (baik lewat DNS proxy
+biasa MAUPUN lewat Tunnel) menerapkan **limit ukuran body request**
+di edge mereka &mdash; sekitar 100MB di paket Free/Pro, lebih besar di
+Business/Enterprise. Ini bukan bug server Anda, dan tidak terlihat di
+log server sama sekali karena request DITOLAK SEBELUM sampai ke server
+&mdash; kami membuktikan ini langsung lewat `curl` (dapat `HTTP 413`
+dgn header `server: cloudflare`) saat mendiagnosis kasus nyata upload
+video besar yang gagal di salah satu aplikasi web di server ini. Kalau aplikasi
+Anda perlu menangani file besar (upload video, backup, dll), siapkan
+**chunked upload** di level aplikasi (pecah file jadi potongan di bawah
+limit, gabung lagi di server) &mdash; jangan andalkan Cloudflare Tunnel
+begitu saja utk file besar tanpa penyesuaian ini.
 
 **Apa yang terjadi kalau Raspberry Pi/SSD-nya rusak total?**
 Inilah kenapa seluruh Chapter 11 (backup berlapis) ada. Dengan backup
