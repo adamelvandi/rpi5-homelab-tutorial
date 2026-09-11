@@ -1,0 +1,60 @@
+#!/bin/bash
+# scripts/system-backup.sh.example
+# Referensi: docs/11-backup-strategi-4-lapis/
+#
+# Backup lapis 4 (paling sering dilupakan): crontab semua user, status
+# paket dpkg, config /etc kritis, unit systemd custom. Ini yang
+# menyelamatkan proses recovery tercepat kalau terjadi insiden seperti
+# di Chapter 99 (korupsi filesystem yang menghapus config sistem tanpa
+# jejak error jelas).
+#
+# Cara pakai:
+#   1. cp system-backup.sh.example system-backup.sh
+#   2. Ganti <user> di bawah, sesuaikan daftar user yang crontab-nya
+#      perlu di-backup
+#   3. chmod +x system-backup.sh
+#   4. Jadwalkan lewat cron (jalankan sebagai root, atau via sudo
+#      dengan NOPASSWD scoped — lihat Chapter 12):
+#      45 2 * * * /path/ke/system-backup.sh >> /path/ke/system-backup.log 2>&1
+
+set -euo pipefail
+
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+DEST="/home/<user>/Backup/system"
+TMP=$(mktemp -d)
+RETENTION_DAYS=30
+
+mkdir -p "$DEST"
+
+# Crontab semua user
+mkdir -p "$TMP/crontabs"
+for user in "<user>" root www-data; do
+  crontab -u "$user" -l > "$TMP/crontabs/${user}.txt" 2>/dev/null || true
+done
+
+# Status & metadata paket
+dpkg --get-selections > "$TMP/dpkg-selections.txt"
+apt-mark showhold > "$TMP/apt-hold.txt" 2>/dev/null || true
+dpkg -l > "$TMP/dpkg-l-full.txt"
+
+# Config /etc kritis yang terbukti bisa hilang/rusak (lihat Chapter 99)
+mkdir -p "$TMP/etc"
+for f in hosts fstab modules; do
+  [ -f "/etc/$f" ] && cp "/etc/$f" "$TMP/etc/"
+done
+[ -d /etc/NetworkManager/system-connections ] && \
+  cp -r /etc/NetworkManager/system-connections "$TMP/etc/networkmanager-connections"
+
+# Unit systemd custom (bukan bawaan paket)
+mkdir -p "$TMP/systemd"
+cp /etc/systemd/system/*.service "$TMP/systemd/" 2>/dev/null || true
+cp /etc/systemd/system/*.timer "$TMP/systemd/" 2>/dev/null || true
+systemctl list-unit-files > "$TMP/systemd/unit-files-state.txt"
+
+tar -czf "$DEST/system-backup_${TIMESTAMP}.tar.gz" -C "$TMP" .
+rm -rf "$TMP"
+
+find "$DEST" -name "*.tar.gz" -mtime +"$RETENTION_DAYS" -delete
+
+SIZE=$(du -h "$DEST/system-backup_${TIMESTAMP}.tar.gz" | cut -f1)
+echo "[$(date '+%a %d %b %H:%M:%S %Z %Y')] system-backup OK: $DEST/system-backup_${TIMESTAMP}.tar.gz ($SIZE)"

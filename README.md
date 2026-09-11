@@ -72,11 +72,15 @@ A single Raspberry Pi 5 (8GB) runs multiple production web apps, background bots
 | 12 | [Keamanan Lanjutan](docs/12-keamanan-lanjutan/) — Advanced hardening | ✅ |
 | 13 | [Operasional & Dokumentasi (AI-assisted)](docs/13-operasional-dokumentasi-ai-assisted/) | ✅ |
 | 99 | [Studi Kasus Insiden](docs/99-studi-kasus-insiden/) — Real incident case studies | ✅ |
-| — | [Lampiran](docs/lampiran/) — Glossary, cheat-sheet, FAQ | 🚧 |
+| — | [Lampiran](docs/lampiran/) — Glossary, cheat-sheet, FAQ | ✅ |
 
 ## How to use this tutorial
 
 Every chapter is written for **two readers at once**: if you just want to copy-paste and get moving, there's a quick-start section. If you want to understand *why* — and what breaks if you get it wrong — read the deep-dive section below it. That second part is where the real value is; skipping it is how people end up re-learning our incidents the hard way.
+
+## Setup script
+
+Want everything installed in one pass instead of copy-pasting from each chapter? [`scripts/quickstart.sh`](scripts/quickstart.sh) installs every tool used across this tutorial (UFW, fail2ban, MariaDB, Tailscale, nginx, cloudflared, Docker, Ollama, ClamAV/rkhunter) — idempotent, safe to re-run. It deliberately **skips NVMe/HMB configuration** (Chapter 03) and anything needing secrets/manual login (database creation, Tailscale auth, tunnel tokens, bot tokens) — those need your direct attention, not a blind script. See [`scripts/README.md`](scripts/README.md) for the full breakdown, including ready-to-copy templates in `scripts/*.example`.
 
 ## Ground rules for this repo (why some things are placeholders)
 

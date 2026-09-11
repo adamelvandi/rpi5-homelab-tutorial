@@ -1,0 +1,39 @@
+#!/bin/bash
+# scripts/backup-db.sh.example
+# Referensi: docs/04-database-arsitektur/
+#
+# Backup otomatis SEMUA database yang sudah di-grant ke user `backup`
+# (auto-discovery — lihat Chapter 04 untuk kenapa ini penting DAN
+# jebakannya: database baru WAJIB di-grant ke user backup dulu, atau
+# dia tidak akan pernah ter-backup TANPA error yang terlihat).
+#
+# Cara pakai:
+#   1. cp backup-db.sh.example backup-db.sh
+#   2. Ganti <PASSWORD_BACKUP_ANDA> di bawah (atau lebih baik: baca dari
+#      ~/.my.cnf dengan permission 600, bukan hardcode di script)
+#   3. chmod +x backup-db.sh
+#   4. Jadwalkan lewat cron: 0 2 * * * /path/ke/backup-db.sh >> /path/ke/backup.log 2>&1
+
+set -euo pipefail
+
+DB_USER="backup"
+DB_PASS="<PASSWORD_BACKUP_ANDA>"
+BACKUP_DIR="/home/<user>/Backup/database"
+RETENTION_DAYS=7
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+mkdir -p "$BACKUP_DIR"
+
+DBS=$(mysql -u "$DB_USER" -p"$DB_PASS" -N -e "SHOW DATABASES;" \
+  | grep -vE "^(information_schema|performance_schema|mysql|sys)$")
+
+COUNT=0
+for db in $DBS; do
+  mysqldump -u "$DB_USER" -p"$DB_PASS" --single-transaction --routines --triggers "$db" \
+    | gzip > "$BACKUP_DIR/${db}_${TIMESTAMP}.sql.gz"
+  COUNT=$((COUNT + 1))
+done
+
+find "$BACKUP_DIR" -name "*.sql.gz" -mtime +"$RETENTION_DAYS" -delete
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') Backup OK ($COUNT DB): $TIMESTAMP"

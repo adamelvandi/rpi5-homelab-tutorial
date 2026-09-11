@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+# scripts/oled-status.py.example
+# Referensi: docs/08-lcd-oled-status-display/
+#
+# Tampilkan CPU/RAM/suhu/waktu di layar OLED SSD1306 (I2C, 128x64).
+#
+# Cara pakai:
+#   1. cp oled-status.py.example oled-status.py
+#   2. pip3 install luma.oled psutil --break-system-packages
+#   3. Pasang sebagai systemd service -- lihat contoh unit di Chapter 08
+
+import time
+import psutil
+from luma.core.interface.serial import i2c
+from luma.oled.device import ssd1306
+from luma.core.render import canvas
+from PIL import ImageFont
+
+serial = i2c(port=1, address=0x3C)
+device = ssd1306(serial, width=128, height=64)
+font = ImageFont.load_default()
+
+
+def get_temp():
+    try:
+        with open("/sys/class/thermal/thermal_zone0/temp") as f:
+            return int(f.read()) / 1000
+    except FileNotFoundError:
+        return 0.0
+
+
+def get_docker_status():
+    """Opsional: hitung container Up vs total, kalau Docker terinstall."""
+    import subprocess
+    try:
+        out = subprocess.check_output(
+            ["docker", "ps", "-a", "--format", "{{.Status}}"],
+            timeout=2,
+        ).decode()
+        lines = [l for l in out.splitlines() if l.strip()]
+        up = sum(1 for l in lines if l.startswith("Up"))
+        return f"{up}/{len(lines)}"
+    except Exception:
+        return "n/a"
+
+
+while True:
+    cpu = psutil.cpu_percent(interval=1)
+    ram = psutil.virtual_memory().percent
+    temp = get_temp()
+    containers = get_docker_status()
+
+    with canvas(device) as draw:
+        draw.text((0, 0), f"CPU : {cpu:5.1f}%", font=font, fill="white")
+        draw.text((0, 16), f"RAM : {ram:5.1f}%", font=font, fill="white")
+        draw.text((0, 32), f"Suhu: {temp:5.1f} C", font=font, fill="white")
+        draw.text((0, 48), f"{time.strftime('%H:%M:%S')}  Docker:{containers}", font=font, fill="white")
+
+    time.sleep(4)

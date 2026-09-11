@@ -2,10 +2,11 @@
 
 ## Quick Start
 
-1. **Flash Raspberry Pi OS** (64-bit, Lite atau Desktop — server tidak
-   butuh desktop environment, tapi Desktop tidak masalah kalau Anda mau
-   sekali-sekali pakai layar langsung) ke microSD pakai **Raspberry Pi
-   Imager**.
+1. **Download &amp; install [Raspberry Pi Imager](https://www.raspberrypi.com/software/)**
+   (tersedia untuk Windows/macOS/Linux). Flash **Raspberry Pi OS**
+   (64-bit, Lite atau Desktop — server tidak butuh desktop environment,
+   tapi Desktop tidak masalah kalau Anda mau sekali-sekali pakai layar
+   langsung) ke microSD lewat Imager ini.
 2. Di Imager, sebelum flash, klik ⚙️ (Advanced Options) dan set:
    - Hostname (misal `myserver`)
    - **Enable SSH**, pakai password ATAU authorized key Anda

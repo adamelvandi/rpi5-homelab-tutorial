@@ -1,0 +1,25 @@
+#!/bin/bash
+# scripts/telegram-notify.sh.example
+# Referensi: docs/09-monitoring-alert-telegram/
+#
+# Fungsi kirim pesan Telegram. Dipakai oleh health-check.sh.example
+# lewat `source` — bukan dijalankan sendiri.
+#
+# Cara pakai:
+#   1. cp telegram-notify.sh.example telegram-notify.sh
+#   2. Buat file /etc/telegram-bot.env (permission 600, root:root)
+#      berisi:
+#        BOT_TOKEN=<token dari @BotFather>
+#        CHAT_ID=<chat ID Anda dari @userinfobot>
+#   3. Jangan pernah commit /etc/telegram-bot.env ke git
+
+# shellcheck disable=SC1091
+source /etc/telegram-bot.env
+
+send_telegram() {
+  local message="$1"
+  curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+    -d chat_id="${CHAT_ID}" \
+    -d text="${message}" \
+    -d parse_mode="Markdown" > /dev/null
+}

@@ -1,0 +1,71 @@
+#!/bin/bash
+# scripts/health-check.sh.example
+# Referensi: docs/09-monitoring-alert-telegram/
+#
+# Prinsip inti: alert HANYA saat status BERUBAH (lihat sequence diagram
+# di Chapter 09) -- bukan tiap kali script dijalankan. Satu insiden =
+# maksimal 2 notifikasi (mulai & selesai), bukan puluhan.
+#
+# Cara pakai:
+#   1. cp health-check.sh.example health-check.sh
+#   2. Sesuaikan path ke telegram-notify.sh dan daftar container di
+#      bawah dengan setup Anda sendiri
+#   3. chmod +x health-check.sh
+#   4. Jadwalkan lewat cron: */5 * * * * /path/ke/health-check.sh >> /path/ke/health.log 2>&1
+
+set -uo pipefail
+
+# shellcheck disable=SC1091
+source "$(dirname "$0")/telegram-notify.sh"
+
+STATE_FILE="/tmp/health-check-state"
+touch "$STATE_FILE"
+
+check_and_alert() {
+  local key="$1" current_status="$2" message="$3"
+  local last_status
+  last_status=$(grep "^${key}=" "$STATE_FILE" 2>/dev/null | cut -d= -f2)
+
+  if [ "$current_status" != "$last_status" ]; then
+    send_telegram "$message"
+    sed -i "/^${key}=/d" "$STATE_FILE"
+    echo "${key}=${current_status}" >> "$STATE_FILE"
+  fi
+}
+
+# --- Cek 1: container Docker down ---
+# Ganti daftar ini dengan nama container Anda sendiri
+CONTAINERS=("app-a" "app-b")
+for container in "${CONTAINERS[@]}"; do
+  status=$(docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null || echo "missing")
+  if [ "$status" != "true" ]; then
+    check_and_alert "container_${container}" "down" "🚨 Container *${container}* DOWN!"
+  else
+    check_and_alert "container_${container}" "up" "✅ Container *${container}* kembali normal."
+  fi
+done
+
+# --- Cek 2: disk penuh ---
+disk_usage=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
+if [ "$disk_usage" -ge 85 ]; then
+  check_and_alert "disk" "full" "🚨 Disk terpakai ${disk_usage}%!"
+else
+  check_and_alert "disk" "ok" "✅ Disk kembali normal (${disk_usage}%)."
+fi
+
+# --- Cek 3: unit systemd yang failed ---
+failed_units=$(systemctl --failed --no-legend | wc -l)
+if [ "$failed_units" -gt 0 ]; then
+  check_and_alert "systemd_failed" "yes" "🚨 Ada ${failed_units} unit systemd berstatus failed! Cek: systemctl --failed"
+else
+  check_and_alert "systemd_failed" "no" "✅ Semua unit systemd normal kembali."
+fi
+
+# --- Cek 4: suhu CPU tinggi ---
+temp_raw=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo 0)
+temp_c=$((temp_raw / 1000))
+if [ "$temp_c" -ge 75 ]; then
+  check_and_alert "temp" "high" "🚨 Suhu CPU ${temp_c}°C, cek pendinginan!"
+else
+  check_and_alert "temp" "ok" "✅ Suhu CPU kembali normal (${temp_c}°C)."
+fi
