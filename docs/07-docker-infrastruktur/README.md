@@ -13,7 +13,7 @@ sudo usermod -aG docker $USER   # supaya tidak perlu sudo tiap docker command
 default Docker):
 
 ```bash
-docker network create --subnet=172.28.0.0/16 webapps-network
+docker network create --subnet=172.20.0.0/16 webapps-network
 ```
 
 **3. Template `docker-compose.yml` per aplikasi** (satu file per app,
@@ -47,7 +47,7 @@ docker compose up -d
 database terpisah), buka firewall HANYA untuk subnet Docker itu:
 
 ```bash
-sudo ufw allow from 172.28.0.0/16 to any port 3306
+sudo ufw allow from 172.20.0.0/16 to any port 3306
 ```
 
 ## Kenapa Begini
@@ -90,7 +90,7 @@ memberi:
 - **Isolasi jaringan** — container di luar network itu tidak bisa
   menjangkau container di dalamnya sama sekali.
 - **Subnet yang bisa Anda tunjuk eksplisit** di aturan firewall (contoh
-  `172.28.0.0/16` di atas) — jadi kalau container butuh akses ke
+  `172.20.0.0/16` di atas) — jadi kalau container butuh akses ke
   service di host (database, misalnya), Anda buka akses **hanya untuk
   subnet spesifik itu**, bukan untuk semua IP.
 
@@ -102,7 +102,7 @@ flowchart TB
         Nginx
         MariaDB[("🗄️ MariaDB<br/>host, port 3306")]
 
-        subgraph Net["📦 webapps-network (172.28.0.0/16) — isolasi"]
+        subgraph Net["📦 webapps-network (172.20.0.0/16) — isolasi"]
             AppA["App A<br/>127.0.0.1:3001→3000"]
             AppB["App B<br/>127.0.0.1:3002→3000"]
         end
@@ -110,8 +110,8 @@ flowchart TB
 
     Nginx -->|"127.0.0.1:3001"| AppA
     Nginx -->|"127.0.0.1:3002"| AppB
-    AppA -.->|"hanya dari subnet<br/>172.28.0.0/16"| MariaDB
-    AppB -.->|"hanya dari subnet<br/>172.28.0.0/16"| MariaDB
+    AppA -.->|"hanya dari subnet<br/>172.20.0.0/16"| MariaDB
+    AppB -.->|"hanya dari subnet<br/>172.20.0.0/16"| MariaDB
     AppA -.-x AppB
 
     Internet(["🌐 Internet"]) -.->|"❌ TIDAK BISA<br/>akses langsung"| AppA

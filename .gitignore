@@ -1,0 +1,19 @@
+# Secrets — jangan pernah commit
+.env
+*.env
+*.env.*
+!*.env.example
+*.key
+*.pem
+credentials.txt
+credentials.json
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+
+# Hasil eksekusi lokal (kalau ada yang mencoba script di scripts/)
+*.log
+*.tar.gz
+!assets/**/*.tar.gz
