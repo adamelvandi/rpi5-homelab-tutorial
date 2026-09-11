@@ -1,6 +1,6 @@
 # RPi 5 Homelab Tutorial
 
-**Build a reliable, production-grade home server on a Raspberry Pi 5 — from bare metal to Docker, Tailscale, Cloudflare Tunnel, local AI, and a battle-tested backup strategy. Written from real production experience, including the incidents that almost killed it.**
+**Build a reliable, production-grade home server on a Raspberry Pi 5 — no public IP, no port-forwarding, no Dynamic DNS hacks required (your ISP can change your home IP anytime, it won't matter). From bare metal to Docker, Tailscale, Cloudflare Tunnel, local AI, and a battle-tested backup strategy. Written from real production experience, including the incidents that almost killed it.**
 
 > 🇬🇧 This README is in English so the project is discoverable globally.
 > 🇮🇩 The full tutorial content is written in **Bahasa Indonesia** — chapter titles below are glossed in English so non-Indonesian readers can still follow the structure and use translation tools per-page if needed. A full English translation may follow if there's interest.
@@ -9,6 +9,7 @@
 
 Most homelab tutorials stop at "install Docker, done." This one doesn't, because reality didn't stop there either:
 
+- **No static/public IP, no router port-forwarding, no fighting your ISP's dynamic IP.** Every service is reachable through Cloudflare Tunnel (outbound-only, no inbound ports at all) and Tailscale for admin access — the exact setup is in Chapters 05 & 06.
 - A specific class of NVMe SSD (DRAM-less) can cause a Raspberry Pi 5 to **freeze permanently under write load** — and the fix isn't in most tutorials because most people never hit it. We did. Chapter 03 covers the full root-cause analysis and the exact kernel boot parameters that fix it.
 - A power outage cascaded into filesystem corruption that took down SSH, nginx, the display manager, and networking — all from **one single symlink pointing at the wrong file**. Chapter 99 documents the entire incident, symptom by symptom, the wrong turns taken during investigation, and the real fix.
 - Every operational decision here — backup layering, alerting philosophy, even how we do server maintenance with AI assistance — comes from something that actually broke first.
@@ -53,26 +54,26 @@ A single Raspberry Pi 5 (8GB) runs multiple production web apps, background bots
 
 ## Table of contents
 
-> Chapters marked ✅ have full content. Chapters marked 🚧 are planned (structure only) — this is a living document, core infrastructure chapters are being written first.
+> **All chapters below are complete.** This is a living document — future incidents get added as new entries under Chapter 99, and existing chapters get revised as things change.
 
-| # | Chapter | Status |
-|---|---|---|
-| 00 | [Pengantar](docs/00-pengantar/) — Introduction & architecture overview | ✅ |
-| 01 | [Hardware & Persiapan](docs/01-hardware-persiapan/) — Hardware shopping list & prep | ✅ |
-| 02 | [Instalasi OS & Setup Dasar](docs/02-instalasi-os-dasar/) — OS install & base setup | ✅ |
-| 03 | [Storage & Reliabilitas NVMe](docs/03-storage-nvme-reliability/) — NVMe reliability (**the big one**) | ✅ |
-| 04 | [Database Arsitektur](docs/04-database-arsitektur/) — Database architecture | ✅ |
-| 05 | [Remote Access — Tailscale](docs/05-remote-access-tailscale/) | ✅ |
-| 06 | [Reverse Proxy & Cloudflare Tunnel](docs/06-reverse-proxy-cloudflare-tunnel/) | ✅ |
-| 07 | [Docker Infrastruktur](docs/07-docker-infrastruktur/) | ✅ |
-| 08 | [LCD OLED Status Display](docs/08-lcd-oled-status-display/) | ✅ |
-| 09 | [Monitoring & Auto-Alert Telegram](docs/09-monitoring-alert-telegram/) | ✅ |
-| 10 | [AI Lokal (Ollama)](docs/10-ai-lokal-ollama/) — On-device AI | ✅ |
-| 11 | [Strategi Backup Berlapis](docs/11-backup-strategi-4-lapis/) — 4-layer backup strategy | ✅ |
-| 12 | [Keamanan Lanjutan](docs/12-keamanan-lanjutan/) — Advanced hardening | ✅ |
-| 13 | [Operasional & Dokumentasi (AI-assisted)](docs/13-operasional-dokumentasi-ai-assisted/) | ✅ |
-| 99 | [Studi Kasus Insiden](docs/99-studi-kasus-insiden/) — Real incident case studies | ✅ |
-| — | [Lampiran](docs/lampiran/) — Glossary, cheat-sheet, FAQ | ✅ |
+| # | Chapter |
+|---|---|
+| 00 | [Pengantar](docs/00-pengantar/) — Introduction & architecture overview |
+| 01 | [Hardware & Persiapan](docs/01-hardware-persiapan/) — Hardware shopping list & prep |
+| 02 | [Instalasi OS & Setup Dasar](docs/02-instalasi-os-dasar/) — OS install & base setup |
+| 03 | [Storage & Reliabilitas NVMe](docs/03-storage-nvme-reliability/) — NVMe reliability (**the big one**) |
+| 04 | [Database Arsitektur](docs/04-database-arsitektur/) — Database architecture |
+| 05 | [Remote Access — Tailscale](docs/05-remote-access-tailscale/) |
+| 06 | [Reverse Proxy & Cloudflare Tunnel](docs/06-reverse-proxy-cloudflare-tunnel/) |
+| 07 | [Docker Infrastruktur](docs/07-docker-infrastruktur/) |
+| 08 | [LCD OLED Status Display](docs/08-lcd-oled-status-display/) |
+| 09 | [Monitoring & Auto-Alert Telegram](docs/09-monitoring-alert-telegram/) |
+| 10 | [AI Lokal (Ollama)](docs/10-ai-lokal-ollama/) — On-device AI |
+| 11 | [Strategi Backup Berlapis](docs/11-backup-strategi-4-lapis/) — 4-layer backup strategy |
+| 12 | [Keamanan Lanjutan](docs/12-keamanan-lanjutan/) — Advanced hardening |
+| 13 | [Operasional & Dokumentasi (AI-assisted)](docs/13-operasional-dokumentasi-ai-assisted/) |
+| 99 | [Studi Kasus Insiden](docs/99-studi-kasus-insiden/) — Real incident case studies |
+| — | [Lampiran](docs/lampiran/) — Glossary, cheat-sheet, FAQ |
 
 ## How to use this tutorial
 
@@ -92,4 +93,6 @@ MIT — see [LICENSE](LICENSE). Use it, fork it, build your own.
 
 ## Status
 
-This repository is currently in **private draft** while content is written and reviewed. **All 16 core chapters (00–13, 99) are now complete.** Remaining: the appendix (glossary, cheat-sheet, FAQ), a full editorial sanitization pass, and diagrams/photos before this goes public.
+**All content is complete**: every chapter (00–13, 99), the appendix, diagrams, and the `scripts/quickstart.sh` installer. This tutorial has been through an editorial sanitization pass to strip any real domain names, IPs, or credentials. The only thing intentionally missing is real hardware photos (`assets/photos/`) — see that folder's README for why, and feel free to contribute your own if you build this setup.
+
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).

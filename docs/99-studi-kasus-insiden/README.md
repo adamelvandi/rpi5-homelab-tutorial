@@ -249,6 +249,10 @@ insiden yang layak dibawa ke server Anda sendiri:
 dan seterusnya — bab ini living document, bukan cerita yang selesai
 sekali ditulis.*
 
+## Lanjut ke
+
+➡️ [Lampiran — Glossary, Cheat-sheet, FAQ](../lampiran/)
+
 ## Kembali ke
 
 ⬅️ [Chapter 13 — Operasional & Dokumentasi](../13-operasional-dokumentasi-ai-assisted/)
