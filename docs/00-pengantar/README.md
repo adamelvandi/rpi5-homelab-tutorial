@@ -66,28 +66,39 @@ dirancang supaya gagal dengan aman (atau tidak gagal sama sekali).
 
 ### Arsitektur besar
 
-```
-Internet
-   │
-   ▼
-Cloudflare Tunnel   (tidak ada port masuk terbuka sama sekali di router)
-   │
-   ▼
-nginx (reverse proxy, banyak domain di 1 server)
-   │
-   ├──▶ Docker container (1 aplikasi = 1 container, bind ke 127.0.0.1 saja)
-   │        │
-   │        ▼
-   │     MariaDB (multi-database, user backup read-only khusus)
-   │
-   └──▶ Tailscale (akses admin, SSH tidak pernah terbuka ke publik)
+```mermaid
+flowchart TB
+    subgraph Luar["🌐 Di Luar Server"]
+        Pengunjung(["Pengunjung situs"])
+        Admin(["Anda (admin)"])
+    end
 
-Tambahan lokal: layar OLED status · bot Telegram · AI lokal (Ollama)
+    Pengunjung -->|"tanpa port terbuka"| Tunnel["☁️ Cloudflare Tunnel<br/>(Ch. 06)"]
+    Admin -->|"mesh VPN"| Tailscale["🔒 Tailscale<br/>(Ch. 05)"]
+
+    subgraph RPi["🖥️ Raspberry Pi 5"]
+        direction TB
+        Tunnel --> Nginx["🔀 nginx reverse proxy<br/>banyak domain (Ch. 06)"]
+        Nginx -->|"127.0.0.1 saja"| Docker["📦 Docker containers<br/>1 app = 1 container (Ch. 07)"]
+        Docker --> DB[("🗄️ MariaDB<br/>multi-database (Ch. 04)")]
+        Tailscale --> SSH["🔑 SSH admin"]
+        NVMe[("💾 NVMe SSD<br/>WAJIB baca Ch. 03!")]
+        OLED["📺 OLED status"]
+        TG["🤖 Bot Telegram"]
+        AI["🧠 Ollama (AI lokal)"]
+    end
+
+    style Tunnel fill:#fff4e5,stroke:#f9a825
+    style Tailscale fill:#fff4e5,stroke:#f9a825
+    style DB fill:#f3e8fd,stroke:#8e44ad
+    style NVMe fill:#fde8e8,stroke:#c0392b,stroke-width:2px
 ```
 
 Setiap kotak di diagram ini punya chapter sendiri. Diagram ini akan
 terus dirujuk sepanjang tutorial supaya Anda tidak kehilangan gambaran
-besar di tengah detail teknis.
+besar di tengah detail teknis. Kotak **NVMe SSD** sengaja ditandai
+merah — itu komponen yang paling banyak menyebabkan masalah kalau
+tidak dikonfigurasi benar (Chapter 03).
 
 ### Filosofi "dua kedalaman" di tiap chapter
 

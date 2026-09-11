@@ -94,6 +94,41 @@ memberi:
   service di host (database, misalnya), Anda buka akses **hanya untuk
   subnet spesifik itu**, bukan untuk semua IP.
 
+```mermaid
+flowchart TB
+    Nginx["🔀 nginx (host)"]
+
+    subgraph Host["🖥️ Host Raspberry Pi"]
+        Nginx
+        MariaDB[("🗄️ MariaDB<br/>host, port 3306")]
+
+        subgraph Net["📦 webapps-network (172.28.0.0/16) — isolasi"]
+            AppA["App A<br/>127.0.0.1:3001→3000"]
+            AppB["App B<br/>127.0.0.1:3002→3000"]
+        end
+    end
+
+    Nginx -->|"127.0.0.1:3001"| AppA
+    Nginx -->|"127.0.0.1:3002"| AppB
+    AppA -.->|"hanya dari subnet<br/>172.28.0.0/16"| MariaDB
+    AppB -.->|"hanya dari subnet<br/>172.28.0.0/16"| MariaDB
+    AppA -.-x AppB
+
+    Internet(["🌐 Internet"]) -.->|"❌ TIDAK BISA<br/>akses langsung"| AppA
+
+    style Internet fill:#fde8e8,stroke:#c0392b
+    style Net fill:#e8fdf0,stroke:#27ae60
+```
+
+*Container App A dan App B tidak bisa saling "melihat" secara jaringan
+meski satu network yang sama (Docker tetap mengizinkan komunikasi antar
+container DALAM satu network yang sama secara default — garis putus-
+putus di atas menandai bahwa secara desain aplikasi, App A dan App B
+sengaja tidak saling memanggil, bukan berarti Docker network sendiri
+yang memblokirnya. Untuk isolasi antar-container yang lebih ketat,
+tempatkan aplikasi yang benar-benar tidak boleh saling berkomunikasi di
+network Docker yang BERBEDA, bukan network yang sama).*
+
 ### Volume vs bind-mount — kapan pakai yang mana
 
 - **Named volume** (`docker volume create`, atau volume tanpa path

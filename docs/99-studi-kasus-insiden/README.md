@@ -25,6 +25,42 @@ listrik mati" ternyata adalah **lima masalah terpisah**, tersembunyi
 satu di balik yang lain, yang baru terungkap penuh lewat investigasi
 berlapis.
 
+```mermaid
+flowchart TB
+    Trigger(["⚡ Mati listrik mendadak<br/>(tanpa UPS)"])
+
+    Trigger --> B1["🧊 Babak 1<br/>SSD membeku total"]
+    B1 -->|"akar masalah:<br/>HMB nonaktif"| F1["🔧 Fix: cmdline.txt<br/>(Ch. 03)"]
+    F1 --> B2
+
+    B2["📭 Babak 2<br/>Boot 'selesai' tapi kosong"]
+    B2 -->|"akar masalah:<br/>default.target rusak"| F2["🔧 Fix: perbaiki symlink"]
+    F2 --> B3
+
+    B3["⌨️ Babak 3<br/>Kursor berkedip,<br/>keyboard mati"]
+    B3 -->|"akar masalah:<br/>/etc/alternatives kosong"| F3["🔧 Fix: update-alternatives<br/>--auto (semua entri)"]
+    F3 --> B4
+
+    B4["🌐 Babak 4<br/>Jaringan hilang,<br/>IP salah"]
+    B4 -->|"akar masalah:<br/>config NetworkManager hilang"| F4["🔧 Fix: restore dari<br/>lost+found"]
+    F4 --> B5
+
+    B5["🔀 Babak 5<br/>nginx gagal start<br/>berulang"]
+    B5 -->|"akar masalah:<br/>race condition boot"| F5["🔧 Fix: ip_nonlocal_bind<br/>+ retry (Ch. 06)"]
+    F5 --> Done(["✅ Pulih sepenuhnya"])
+
+    style Trigger fill:#fde8e8,stroke:#c0392b,stroke-width:2px
+    style Done fill:#e8fdf0,stroke:#27ae60,stroke-width:2px
+    style B1 fill:#fff4e5,stroke:#f9a825
+    style B2 fill:#fff4e5,stroke:#f9a825
+    style B3 fill:#fff4e5,stroke:#f9a825
+    style B4 fill:#fff4e5,stroke:#f9a825
+    style B5 fill:#fff4e5,stroke:#f9a825
+```
+
+*Satu pemicu, lima lapisan masalah yang baru terlihat satu per satu
+setelah lapisan sebelumnya diperbaiki. Detail tiap babak di bawah.*
+
 ### Babak 1: SSD yang Membeku Total
 
 **Gejala**: Server freeze total di tengah beban tulis. Bukan lambat —

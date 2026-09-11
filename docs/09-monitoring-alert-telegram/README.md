@@ -96,6 +96,36 @@ tetap ingin tahu kapan masalah selesai, bukan cuma kapan mulai). Hasil:
 satu insiden = maksimal dua notifikasi (mulai &amp; selesai), bukan
 puluhan.
 
+```mermaid
+sequenceDiagram
+    participant Cron as ⏱️ Cron (tiap 5 menit)
+    participant Script as 📜 health-check.sh
+    participant State as 💾 File state
+    participant TG as 🤖 Telegram
+
+    Cron->>Script: jalankan
+    Script->>State: baca status terakhir (OK)
+    Script->>Script: cek kondisi nyata → BERMASALAH
+    Script->>State: status berubah OK→BERMASALAH
+    Script->>TG: 🚨 kirim alert (1x)
+
+    Note over Cron,TG: 5 menit kemudian, masih bermasalah...
+    Cron->>Script: jalankan lagi
+    Script->>State: baca status terakhir (BERMASALAH)
+    Script->>Script: cek kondisi nyata → masih BERMASALAH
+    Script--xTG: ⛔ TIDAK kirim apa-apa (status sama)
+
+    Note over Cron,TG: beberapa saat kemudian, sudah pulih...
+    Cron->>Script: jalankan lagi
+    Script->>State: baca status terakhir (BERMASALAH)
+    Script->>Script: cek kondisi nyata → sudah OK
+    Script->>State: status berubah BERMASALAH→OK
+    Script->>TG: ✅ kirim notifikasi pulih (1x)
+```
+
+*Satu insiden yang berlangsung berjam-jam = tetap cuma 2 notifikasi
+(mulai &amp; selesai), berapa pun kali cron dijalankan di antaranya.*
+
 ### Kenapa bot dua arah (bisa di-query), bukan cuma kirim notifikasi
 
 Selain menerima alert otomatis, bot Telegram yang sama bisa

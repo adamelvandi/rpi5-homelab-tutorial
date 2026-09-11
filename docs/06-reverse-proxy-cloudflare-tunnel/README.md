@@ -75,6 +75,32 @@ server Anda) membuat **koneksi keluar** ke jaringan Cloudflare (bukan
 menunggu koneksi masuk), dan Cloudflare yang menerima traffic publik
 lalu meneruskannya lewat tunnel terenkripsi itu ke server Anda. Hasilnya:
 
+```mermaid
+flowchart TB
+    subgraph Trad["❌ Port-forward tradisional"]
+        direction LR
+        T1(["Internet"]) -->|"koneksi MASUK<br/>ke port 80/443"| T2["🌐 Router<br/>(port terbuka)"]
+        T2 --> T3["🖥️ Server<br/>IP publik terekspos"]
+    end
+
+    subgraph Tunnel["✅ Cloudflare Tunnel"]
+        direction LR
+        U3["🖥️ Server<br/>(cloudflared)"] -->|"koneksi KELUAR<br/>diinisiasi server"| U2["☁️ Jaringan<br/>Cloudflare"]
+        U1(["Internet"]) -->|"traffic publik"| U2
+        U2 -.->|"diteruskan lewat<br/>tunnel terenkripsi"| U3
+    end
+
+    style T2 fill:#fde8e8,stroke:#c0392b
+    style T3 fill:#fde8e8,stroke:#c0392b
+    style U2 fill:#e8fdf0,stroke:#27ae60
+    style U3 fill:#e8fdf0,stroke:#27ae60
+```
+
+*Perhatikan arah panah: di pendekatan tradisional, router harus
+menerima koneksi MASUK (port harus terbuka). Di Cloudflare Tunnel,
+server yang memulai koneksi KELUAR — tidak ada port yang perlu
+menunggu/menerima apa pun dari internet.*
+
 - **Tidak ada port masuk yang perlu dibuka di router sama sekali** —
   bahkan port 80/443 tidak perlu terbuka ke internet.
 - TLS/sertifikat ditangani otomatis oleh Cloudflare di sisi mereka.

@@ -1,5 +1,42 @@
 # 08 — LCD OLED Status Display
 
+## Wiring (I2C, 4 kabel)
+
+```mermaid
+flowchart LR
+    subgraph RPi["🖥️ Raspberry Pi 5 — GPIO header"]
+        P1["Pin 1 · 3.3V"]
+        P3["Pin 3 · SDA (GPIO 2)"]
+        P5["Pin 5 · SCL (GPIO 3)"]
+        P6["Pin 6 · GND"]
+    end
+
+    subgraph OLED["📺 Modul OLED SSD1306"]
+        O_VCC["VCC"]
+        O_SDA["SDA"]
+        O_SCL["SCL"]
+        O_GND["GND"]
+    end
+
+    P1 ---|"kabel merah"| O_VCC
+    P3 ---|"kabel kuning"| O_SDA
+    P5 ---|"kabel hijau"| O_SCL
+    P6 ---|"kabel hitam"| O_GND
+
+    style P1 fill:#fde8e8,stroke:#c0392b
+    style O_VCC fill:#fde8e8,stroke:#c0392b
+    style P6 fill:#2c3e50,color:#fff
+    style O_GND fill:#2c3e50,color:#fff
+```
+
+> 📷 **Catatan jujur**: diagram di atas adalah representasi skematik,
+> BUKAN foto wiring asli (kami tidak menyertakan foto hardware fisik
+> di draf ini — silakan tambahkan foto asli setup Anda sendiri kalau
+> mem-fork tutorial ini). Nomor pin GPIO mengikuti penomoran fisik
+> header 40-pin standar Raspberry Pi — cocokkan dengan pinout resmi
+> `pinout.xyz` sebelum menyambungkan kabel apa pun, dan **selalu
+> matikan Raspberry Pi sebelum menyambung/melepas kabel GPIO**.
+
 ## Quick Start
 
 **1. Aktifkan I2C di Raspberry Pi:**

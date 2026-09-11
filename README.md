@@ -17,24 +17,37 @@ If you want a server that survives real failures (not just the happy path), this
 
 ## What this server runs (generalized)
 
+```mermaid
+flowchart TB
+    Internet(["🌐 Internet visitors"]) -->|no open inbound ports| CFT["☁️ Cloudflare Tunnel"]
+    CFT --> Nginx["🔀 nginx — reverse proxy<br/>multi-domain"]
+    Nginx -->|127.0.0.1 only| AppA["📦 Docker: App A"]
+    Nginx -->|127.0.0.1 only| AppB["📦 Docker: App B"]
+    Nginx -->|127.0.0.1 only| AppC["📦 Docker: App C"]
+    AppA --> DB[("🗄️ MariaDB<br/>multi-database")]
+    AppB --> DB
+    AppC --> DB
+
+    Admin(["👤 Admin (you)"]) -->|mesh VPN, no public SSH| TS["🔒 Tailscale"]
+    TS --> Host["🖥️ Raspberry Pi 5 host"]
+    Nginx -.-> Host
+    DB -.-> Host
+
+    Host --> OLED["📺 OLED status display"]
+    Host --> TG["🤖 Telegram alert bot"]
+    Host --> AI["🧠 Ollama (local AI)"]
+
+    style Internet fill:#e8f4fd,stroke:#0366d6
+    style Admin fill:#e8f4fd,stroke:#0366d6
+    style CFT fill:#fff4e5,stroke:#f9a825
+    style TS fill:#fff4e5,stroke:#f9a825
+    style DB fill:#f3e8fd,stroke:#8e44ad
+    style Host fill:#e8fdf0,stroke:#27ae60
 ```
-Internet
-   │
-   ▼
-Cloudflare Tunnel  (no open inbound ports, no port-forwarding on your router)
-   │
-   ▼
-nginx (reverse proxy, multi-domain)
-   │
-   ├──▶ Docker containers (one app per container, bound to 127.0.0.1 only)
-   │        │
-   │        ▼
-   │     MariaDB (multi-database, least-privilege backup user)
-   │
-   └──▶ Tailscale mesh VPN  (admin access, no public SSH exposure)
+
+*(Diagram di atas dirender otomatis oleh GitHub — kalau Anda membaca file ini di editor teks biasa, buka lewat GitHub atau viewer yang mendukung Mermaid untuk melihat versi visualnya.)*
 
 Local extras: OLED status display · Telegram alert bot · on-device Ollama AI
-```
 
 A single Raspberry Pi 5 (8GB) runs multiple production web apps, background bots, a database, and a full monitoring/alerting stack — reliably, with documented recovery procedures for when (not if) something goes wrong.
 

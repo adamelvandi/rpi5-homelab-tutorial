@@ -79,6 +79,29 @@ kernel command line yang tidak tepat — SSD DRAM-less terpaksa menyimpan
 &amp; membaca ulang tabel FTL-nya langsung dari NAND flash setiap kali,
 yang jauh lebih lambat.
 
+```mermaid
+flowchart LR
+    subgraph A["✅ SSD DRAM-based"]
+        A1["Chip RAM sendiri<br/>di board SSD"] --> A2["Tabel FTL<br/>diakses instan"]
+        A2 --> A3["Performa stabil,<br/>tidak bergantung host"]
+    end
+
+    subgraph B["⚠️ SSD DRAM-less + HMB AKTIF"]
+        B1["Pinjam RAM host<br/>lewat HMB"] --> B2["Tabel FTL di RAM<br/>host (cukup cepat)"]
+        B2 --> B3["Performa dekat<br/>dengan DRAM-based"]
+    end
+
+    subgraph C["🚨 SSD DRAM-less + HMB MATI"]
+        C1["Tidak ada RAM<br/>sama sekali"] --> C2["Tabel FTL baca/tulis<br/>langsung ke NAND"]
+        C2 --> C3["Latensi tinggi di<br/>beban tulis berat"]
+        C3 --> C4["Timeout controller →<br/>🧊 FREEZE / RESET"]
+    end
+
+    style C4 fill:#fde8e8,stroke:#c0392b,stroke-width:2px
+    style A3 fill:#e8fdf0,stroke:#27ae60
+    style B3 fill:#fff4e5,stroke:#f9a825
+```
+
 ### Kenapa ini bisa membuat Raspberry Pi 5 freeze total
 
 Di bawah beban tulis yang tersebar &amp; berkelanjutan — contoh nyata:

@@ -12,6 +12,40 @@ di waktu yang sama:
 | **3. Memory/State AI Assistant** | Kalau Anda pakai AI assistant persisten untuk maintenance | 03:00 harian | 14 hari |
 | **4. State Sistem** *(paling sering dilupakan)* | Crontab semua user, dpkg selections, config `/etc` kritis, unit systemd custom | 02:45 harian | 30 hari |
 
+```mermaid
+gantt
+    title Jadwal 4 Lapis Backup (dini hari, tidak saling bebani I/O)
+    dateFormat HH:mm
+    axisFormat %H:%M
+    section Lapis 1
+    Database (7 hari)           :a1, 02:00, 15m
+    section Lapis 2
+    Kode/Proyek (14 hari)       :a2, 02:30, 15m
+    section Lapis 4
+    State Sistem (30 hari)      :a3, 02:45, 10m
+    section Lapis 3
+    Memory AI Assistant (14 hari) :a4, 03:00, 10m
+```
+
+```mermaid
+flowchart LR
+    Server["🖥️ Server"] --> L1["1️⃣ Database<br/>mysqldump per-app<br/>🕑 7 hari"]
+    Server --> L2["2️⃣ Kode/Proyek<br/>tar.gz self-contained<br/>🕑 14 hari"]
+    Server --> L3["3️⃣ Memory AI<br/>state asisten kerja<br/>🕑 14 hari"]
+    Server --> L4["4️⃣ State Sistem ⚠️<br/>crontab+dpkg+/etc<br/>🕑 30 hari"]
+
+    L1 --> Disk[("💽 /Backup/")]
+    L2 --> Disk
+    L3 --> Disk
+    L4 --> Disk
+
+    style L4 fill:#fff4e5,stroke:#f9a825,stroke-width:2px
+```
+
+*Lapis 4 (State Sistem) ditandai kuning — ini yang paling sering
+dilupakan orang, padahal justru yang menyelamatkan proses recovery
+tercepat kalau terjadi insiden seperti [Chapter 99](../99-studi-kasus-insiden/).*
+
 Contoh script lapis 4 (`scripts/system-backup.sh.example`):
 
 ```bash
