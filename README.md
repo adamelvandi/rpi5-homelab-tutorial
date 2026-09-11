@@ -46,12 +46,12 @@ A single Raspberry Pi 5 (8GB) runs multiple production web apps, background bots
 |---|---|---|
 | 00 | [Pengantar](docs/00-pengantar/) — Introduction & architecture overview | ✅ |
 | 01 | [Hardware & Persiapan](docs/01-hardware-persiapan/) — Hardware shopping list & prep | ✅ |
-| 02 | [Instalasi OS & Setup Dasar](docs/02-instalasi-os-dasar/) — OS install & base setup | 🚧 |
-| 03 | [Storage & Reliabilitas NVMe](docs/03-storage-nvme-reliability/) — NVMe reliability (**the big one**) | 🚧 |
-| 04 | [Database Arsitektur](docs/04-database-arsitektur/) — Database architecture | 🚧 |
-| 05 | [Remote Access — Tailscale](docs/05-remote-access-tailscale/) | 🚧 |
-| 06 | [Reverse Proxy & Cloudflare Tunnel](docs/06-reverse-proxy-cloudflare-tunnel/) | 🚧 |
-| 07 | [Docker Infrastruktur](docs/07-docker-infrastruktur/) | 🚧 |
+| 02 | [Instalasi OS & Setup Dasar](docs/02-instalasi-os-dasar/) — OS install & base setup | ✅ |
+| 03 | [Storage & Reliabilitas NVMe](docs/03-storage-nvme-reliability/) — NVMe reliability (**the big one**) | ✅ |
+| 04 | [Database Arsitektur](docs/04-database-arsitektur/) — Database architecture | ✅ |
+| 05 | [Remote Access — Tailscale](docs/05-remote-access-tailscale/) | ✅ |
+| 06 | [Reverse Proxy & Cloudflare Tunnel](docs/06-reverse-proxy-cloudflare-tunnel/) | ✅ |
+| 07 | [Docker Infrastruktur](docs/07-docker-infrastruktur/) | ✅ |
 | 08 | [LCD OLED Status Display](docs/08-lcd-oled-status-display/) | 🚧 |
 | 09 | [Monitoring & Auto-Alert Telegram](docs/09-monitoring-alert-telegram/) | 🚧 |
 | 10 | [AI Lokal (Ollama)](docs/10-ai-lokal-ollama/) — On-device AI | 🚧 |
@@ -75,4 +75,4 @@ MIT — see [LICENSE](LICENSE). Use it, fork it, build your own.
 
 ## Status
 
-This repository is currently in **private draft** while content is written and reviewed. Core infrastructure chapters (00–07) are being written first; monitoring, AI, backup, security, and the incident case studies follow.
+This repository is currently in **private draft** while content is written and reviewed. **Core infrastructure chapters (00–07) are complete.** Monitoring, AI, backup, security, and the incident case studies (08–13, 99) are next.
