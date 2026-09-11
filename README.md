@@ -52,13 +52,13 @@ A single Raspberry Pi 5 (8GB) runs multiple production web apps, background bots
 | 05 | [Remote Access — Tailscale](docs/05-remote-access-tailscale/) | ✅ |
 | 06 | [Reverse Proxy & Cloudflare Tunnel](docs/06-reverse-proxy-cloudflare-tunnel/) | ✅ |
 | 07 | [Docker Infrastruktur](docs/07-docker-infrastruktur/) | ✅ |
-| 08 | [LCD OLED Status Display](docs/08-lcd-oled-status-display/) | 🚧 |
-| 09 | [Monitoring & Auto-Alert Telegram](docs/09-monitoring-alert-telegram/) | 🚧 |
-| 10 | [AI Lokal (Ollama)](docs/10-ai-lokal-ollama/) — On-device AI | 🚧 |
-| 11 | [Strategi Backup Berlapis](docs/11-backup-strategi-4-lapis/) — 4-layer backup strategy | 🚧 |
-| 12 | [Keamanan Lanjutan](docs/12-keamanan-lanjutan/) — Advanced hardening | 🚧 |
-| 13 | [Operasional & Dokumentasi (AI-assisted)](docs/13-operasional-dokumentasi-ai-assisted/) | 🚧 |
-| 99 | [Studi Kasus Insiden](docs/99-studi-kasus-insiden/) — Real incident case studies | 🚧 |
+| 08 | [LCD OLED Status Display](docs/08-lcd-oled-status-display/) | ✅ |
+| 09 | [Monitoring & Auto-Alert Telegram](docs/09-monitoring-alert-telegram/) | ✅ |
+| 10 | [AI Lokal (Ollama)](docs/10-ai-lokal-ollama/) — On-device AI | ✅ |
+| 11 | [Strategi Backup Berlapis](docs/11-backup-strategi-4-lapis/) — 4-layer backup strategy | ✅ |
+| 12 | [Keamanan Lanjutan](docs/12-keamanan-lanjutan/) — Advanced hardening | ✅ |
+| 13 | [Operasional & Dokumentasi (AI-assisted)](docs/13-operasional-dokumentasi-ai-assisted/) | ✅ |
+| 99 | [Studi Kasus Insiden](docs/99-studi-kasus-insiden/) — Real incident case studies | ✅ |
 | — | [Lampiran](docs/lampiran/) — Glossary, cheat-sheet, FAQ | 🚧 |
 
 ## How to use this tutorial
@@ -75,4 +75,4 @@ MIT — see [LICENSE](LICENSE). Use it, fork it, build your own.
 
 ## Status
 
-This repository is currently in **private draft** while content is written and reviewed. **Core infrastructure chapters (00–07) are complete.** Monitoring, AI, backup, security, and the incident case studies (08–13, 99) are next.
+This repository is currently in **private draft** while content is written and reviewed. **All 16 core chapters (00–13, 99) are now complete.** Remaining: the appendix (glossary, cheat-sheet, FAQ), a full editorial sanitization pass, and diagrams/photos before this goes public.
