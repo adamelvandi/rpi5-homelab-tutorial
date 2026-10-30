@@ -2,6 +2,17 @@
 
 ## Quick Start
 
+```mermaid
+flowchart LR
+    A["1️⃣ Flash Raspberry Pi OS<br/>via Imager"] --> B["2️⃣ Set hostname, SSH,<br/>user di Advanced Options"]
+    B --> C["3️⃣ Boot dari SD,<br/>SSH masuk"]
+    C --> D["4️⃣ Set IP statis<br/>(nmcli)"]
+    D --> E["5️⃣ Update + firewall<br/>dasar (ufw, fail2ban)"]
+    E --> Next(["➡️ Chapter 03"])
+
+    style Next fill:#e8fdf0,stroke:#27ae60
+```
+
 1. **Download &amp; install [Raspberry Pi Imager](https://www.raspberrypi.com/software/)**
    (tersedia untuk Windows/macOS/Linux). Flash **Raspberry Pi OS**
    (64-bit, Lite atau Desktop — server tidak butuh desktop environment,

@@ -68,6 +68,25 @@ kesempurnaan.
 
 ### Landmine nyata: race condition boot Ollama vs jaringan Docker
 
+```mermaid
+flowchart TB
+    subgraph Before["❌ Sebelum fix: After=network-online.target"]
+        Boot1(["🔌 Boot"]) --> Net1["🌐 Network online"]
+        Net1 --> OllamaTry["🧠 Ollama coba start"]
+        OllamaTry -->|"gateway Docker<br/>belum dibuat!"| Fail["💥 Gagal bind"]
+        Fail -.->|"restart berulang<br/>ratusan kali"| OllamaTry
+    end
+
+    subgraph After["✅ Sesudah fix: Requires=docker.service"]
+        Boot2(["🔌 Boot"]) --> Docker2["🐳 Docker selesai<br/>buat network bridge"]
+        Docker2 --> Ollama2["🧠 Ollama start"]
+        Ollama2 --> OK["✅ Berhasil bind,<br/>langsung jalan"]
+    end
+
+    style Fail fill:#fde8e8,stroke:#c0392b,stroke-width:2px
+    style OK fill:#e8fdf0,stroke:#27ae60
+```
+
 Ini pelajaran dari kejadian langsung yang menyebabkan **ratusan kali
 restart** dalam log sebelum ditemukan akar masalahnya:
 

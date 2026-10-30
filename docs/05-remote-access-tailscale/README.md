@@ -37,6 +37,25 @@ sudo ufw delete allow 22/tcp                         # hapus rule "allow dari ma
 
 ### Kenapa mesh VPN, bukan port-forward router biasa
 
+```mermaid
+flowchart TB
+    subgraph Traditional["❌ Cara tradisional: port-forward"]
+        Internet1(["🌐 Internet publik"]) -->|"port 22 terbuka<br/>ke SEMUA orang"| Router1["🔀 Router"]
+        Router1 --> Server1["🖥️ Server"]
+        Bot["🤖 Bot scanning 24/7"] -.-> Internet1
+    end
+
+    subgraph Mesh["✅ Tailscale: mesh VPN privat"]
+        Laptop["💻 Laptop<br/>100.x.y.1"] -.->|"tailnet privat<br/>(WireGuard)"| Server2["🖥️ Server<br/>100.x.y.2"]
+        Phone["📱 HP<br/>100.x.y.3"] -.->|"tailnet privat"| Server2
+        Internet2(["🌐 Internet publik"]) -.->|"❌ tidak ada port terbuka<br/>sama sekali"| Server2
+    end
+
+    style Traditional fill:#fde8e8,stroke:#c0392b
+    style Mesh fill:#e8fdf0,stroke:#27ae60
+    style Bot fill:#fde8e8,stroke:#c0392b
+```
+
 Cara "tradisional" mengakses server rumahan dari luar adalah
 port-forward di router (buka port 22 dari internet ke IP lokal server
 Anda). Ini punya masalah mendasar: **port itu benar-benar terbuka ke

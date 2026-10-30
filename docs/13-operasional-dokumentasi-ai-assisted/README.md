@@ -84,6 +84,26 @@ perubahan-perubahan berikutnya.
 
 ### Kalau memakai asisten AI untuk maintenance — pola yang terbukti aman
 
+```mermaid
+flowchart TB
+    Start(["🔍 Tugas maintenance masuk"]) --> Evidence["1️⃣ Cek bukti LIVE<br/>(bukan asumsi/dokumentasi lama)"]
+    Evidence --> Risky{"Berisiko/sulit dibalik?<br/>(hapus, restart produksi,<br/>ubah DB, dampak lintas sistem)"}
+    Risky -->|"Ya"| Ask["🛑 Berhenti, minta<br/>approval eksplisit"]
+    Ask --> Approved{"Disetujui?"}
+    Approved -->|"Tidak"| Start
+    Approved -->|"Ya, untuk aksi INI saja"| Backup
+    Risky -->|"Tidak, kecil &amp; jelas amannya"| Backup["2️⃣ Backup dulu<br/>(tanpa kecuali)"]
+    Backup --> Act["3️⃣ Jalankan perubahan"]
+    Act --> Verify["4️⃣ Verifikasi end-to-end<br/>dgn bukti nyata<br/>(bukan 'tidak ada error')"]
+    Verify --> Journal["5️⃣ Tulis jurnal sesi<br/>(kontinuitas lintas sesi)"]
+    Journal --> Done(["✅ Selesai"])
+
+    style Ask fill:#fde8e8,stroke:#c0392b,stroke-width:2px
+    style Backup fill:#fff4e5,stroke:#f9a825
+    style Verify fill:#e8f4fd,stroke:#0366d6
+    style Done fill:#e8fdf0,stroke:#27ae60
+```
+
 Menggunakan asisten AI (seperti Claude Code atau sejenisnya) untuk
 membantu maintenance server rumahan bisa sangat produktif, tapi juga
 berisiko kalau tidak dipagari dengan aturan jelas. Pola yang terbukti

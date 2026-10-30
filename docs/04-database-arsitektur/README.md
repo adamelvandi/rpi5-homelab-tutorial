@@ -39,6 +39,26 @@ sudo mysql -e "SELECT @@datadir;"
 
 ## Kenapa Begini
 
+```mermaid
+flowchart TB
+    subgraph Instance["🗄️ Satu instance MariaDB (di NVMe)"]
+        DBA[("app_a")]
+        DBB[("app_b")]
+    end
+
+    UserA["👤 app_a_user<br/>ALL PRIVILEGES hanya app_a"] --> DBA
+    UserB["👤 app_b_user<br/>ALL PRIVILEGES hanya app_b"] --> DBB
+    Backup["👤 backup (read-only)<br/>SELECT, LOCK TABLES, SHOW VIEW,<br/>EVENT, TRIGGER"] -.->|"HARUS di-grant manual<br/>tiap ada DB baru!"| DBA
+    Backup -.->|"HARUS di-grant manual<br/>tiap ada DB baru!"| DBB
+
+    AppA["📦 App A"] --> UserA
+    AppB["📦 App B"] --> UserB
+    Cron["⏰ Cron backup harian"] --> Backup
+
+    style Backup fill:#fff4e5,stroke:#f9a825
+    style Instance fill:#f3e8fd,stroke:#8e44ad
+```
+
 ### Kenapa 1 instance, banyak database — bukan 1 instance per aplikasi
 
 Menjalankan MariaDB terpisah per aplikasi (misal lewat container

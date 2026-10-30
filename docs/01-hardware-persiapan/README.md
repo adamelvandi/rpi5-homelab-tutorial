@@ -44,6 +44,23 @@ yang wajib ada untuk mengaktifkan HMB, semuanya di **Chapter 03**.
 Jangan lewati bab itu kalau Anda berencana pakai NVMe SSD apa pun di
 Raspberry Pi.
 
+```mermaid
+flowchart TD
+    Start(["🛒 Mau beli/pakai NVMe SSD?"]) --> Check{"DRAM-based atau<br/>DRAM-less?"}
+    Check -->|"DRAM-based<br/>(punya chip RAM sendiri)"| Safe["✅ Aman dipakai langsung,<br/>tidak butuh HMB"]
+    Check -->|"DRAM-less<br/>(cth: WD PC SN740)"| Warn["⚠️ WAJIB baca Chapter 03<br/>sebelum beban produksi apa pun"]
+    Warn --> HMB{"HMB aktif di<br/>cmdline.txt?"}
+    HMB -->|"Tidak aktif"| Freeze["🧊 Risiko freeze permanen<br/>di bawah beban tulis berkelanjutan"]
+    HMB -->|"Aktif"| Safe2["✅ Aman, lanjut"]
+    Safe --> Next(["➡️ Chapter 02"])
+    Safe2 --> Next
+
+    style Freeze fill:#fde8e8,stroke:#c0392b,stroke-width:2px
+    style Safe fill:#e8fdf0,stroke:#27ae60
+    style Safe2 fill:#e8fdf0,stroke:#27ae60
+    style Warn fill:#fff4e5,stroke:#f9a825
+```
+
 **Cara cepat cek SSD Anda DRAM-less atau bukan sebelum beli**: cari
 spesifikasi resmi drive di web produsen, atau cek review/teardown —
 biasanya disebutkan eksplisit "DRAM-less" atau "HMB-based". SSD

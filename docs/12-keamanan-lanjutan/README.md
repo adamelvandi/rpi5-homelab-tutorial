@@ -1,5 +1,33 @@
 # 12 — Keamanan Lanjutan (Advanced Hardening)
 
+```mermaid
+flowchart TB
+    subgraph Layer1["🛡️ Lapis 1: Blokir otomatis"]
+        F2B["fail2ban<br/>sshd + nginx-http-auth +<br/>nginx-limit-req"]
+    end
+    subgraph Layer2["🔍 Lapis 2: Scan terjadwal"]
+        RK["rkhunter<br/>(rootkit)"]
+        CAV["ClamAV<br/>(malware)"]
+    end
+    subgraph Layer3["🧾 Lapis 3: Audit integritas"]
+        DS["debsums -c<br/>(checksum paket resmi)"]
+    end
+    subgraph Layer4["👁️ Lapis 4: Audit manual berkala"]
+        Port["Port listen (ss -tlnp)"]
+        Shell["User shell aktif"]
+        SUID["SUID/SGID tak dikenal"]
+    end
+
+    Layer1 --> Layer2 --> Layer3 --> Layer4
+    Cron["⏰ Cron"] -.->|"⚠️ sudo butuh TTY!<br/>pakai NOPASSWD scoped"| RK
+    Cron -.-> CAV
+
+    style Layer1 fill:#e8f4fd,stroke:#0366d6
+    style Layer2 fill:#fff4e5,stroke:#f9a825
+    style Layer3 fill:#f3e8fd,stroke:#8e44ad
+    style Layer4 fill:#e8fdf0,stroke:#27ae60
+```
+
 ## Quick Start
 
 **1. fail2ban multi-jail** (`/etc/fail2ban/jail.local`):
