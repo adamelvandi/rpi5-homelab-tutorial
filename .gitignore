@@ -13,6 +13,9 @@ credentials.json
 Thumbs.db
 *.swp
 
+# Sesi lokal Claude Code (worktree scratch, dll) -- bukan bagian repo
+.claude/
+
 # Hasil eksekusi lokal (kalau ada yang mencoba script di scripts/)
 *.log
 *.tar.gz
